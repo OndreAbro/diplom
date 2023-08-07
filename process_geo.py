@@ -3,17 +3,27 @@ from geojson2osm import geojson2osm as _geo2osm
 import json
 
 
-with open('.\\source\\token_dadata', 'r') as tf:
+with open('.\\source\\dadata_token', 'r') as tf:
     token = tf.read()
     dadata = Dadata(token)
     digits_in_token = int(''.join([i for i in token if i in '0123456789']))
 
 
+def close_dadata_socket():
+    dadata.close()
+
+
+def print_line():
+    print('-' * 50)
+
+
 def select_option(options_list):
     count = 1
+    print_line()
     for i in options_list:
         print(f'    {count}. {i}')
         count += 1
+    print_line()
     while True:
         try:
             num = int(input('Выберите один из вариантов: '))
@@ -34,7 +44,6 @@ def find_city(city):
         if i['data']['city'] and i['data']['fias_level'] == '4' and city.title() in i['data']['city']:
             city_variants.append(i['data']['city'])
             geo_c_variants.append((i['data']['geo_lon'], i['data']['geo_lat']))
-    dadata.close()
     return city_variants, geo_c_variants
 
 
@@ -45,7 +54,6 @@ def find_address(address):
         if i['data']['fias_level'] in ['7', '8']:
             address_variants.append(i['value'])
             geo_a_variants.append((i['data']['geo_lon'], i['data']['geo_lat']))
-    dadata.close()
     return address_variants, geo_a_variants
 
 
