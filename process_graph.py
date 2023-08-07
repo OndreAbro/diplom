@@ -1,22 +1,29 @@
 import osmnx as _ox
 import networkx as _nx
-import os
 import pandas as _pd
 import shapely as _shpl
 import geopandas as _gpd
+import os
+from datetime import datetime
+
+
+def check_mtime(city):
+    return (datetime.now() - datetime.fromtimestamp(os.path.getmtime(f'.\\source\\graphml\\{city}_D.graphml'))).days < 30
 
 
 def save_graphml_to_file(city):
-    if not os.path.exists(f'.\\source\\graphml\\{city}_D.graphml') or not os.path.exists(f'{city}_W.graphml'):
+    if not os.path.exists(f'.\\source\\graphml\\{city}_D.graphml') or \
+            not os.path.exists(f'.\\source\\graphml\\{city}_W.graphml') or \
+            not check_mtime(city):
         print('Загрузка города...')
-        d = _ox.graph_from_place(f'.\\source\\graphml\\{city}, Russia', network_type='drive')
-        w = _ox.graph_from_place(f'.\\source\\graphml\\{city}, Russia', network_type='walk')
+        d = _ox.graph_from_place(f'{city}, Russia', network_type='drive')
+        w = _ox.graph_from_place(f'{city}, Russia', network_type='walk')
         _ox.save_graphml(d, filepath=f'.\\source\\graphml\\{city}_D.graphml')
         _ox.save_graphml(w, filepath=f'.\\source\\graphml\\{city}_W.graphml')
 
 
 def load_geom(filename):
-    points = _ox.geometries_from_xml(f'.\\source\\geojson_osm\\{filename}.osm')
+    points = _ox.features_from_xml(f'.\\source\\geojson_osm\\{filename}.osm')
     return points
 
 
