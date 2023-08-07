@@ -1,7 +1,6 @@
 import sys
 import os
 
-
 if 'venv' in sys.executable:
     from process_geo import *
     from process_graph import *
@@ -9,6 +8,7 @@ if 'venv' in sys.executable:
     from process_tsp import *
     from process_xls import *
     from process_db import *
+    from datetime import datetime
 
 
     def main_menu():
@@ -25,13 +25,17 @@ if 'venv' in sys.executable:
             print('Некорректный ввод, требуется ввести число от 1 до 5!')
 
 
-    def get_file(extension_list):
-        file_list = [file for ext in extension_list for file in os.listdir() if file.endswith(ext)]
+    def get_file(source_dir):
+        file_list = [file for file in os.listdir(source_dir)]
         if not file_list:
             print('Не найдено соответствующих файлов!')
             raise ImportError
         print('Выберите файл: ')
         return file_list[select_option(file_list)]
+
+
+    def set_filename():
+        return datetime.now().strftime('%Y-%m-%d %H_%M_%S')
 
 
     def not_found_menu():
@@ -90,13 +94,12 @@ if 'venv' in sys.executable:
     def main():
         choice = main_menu()
         while choice != 5:
+
             if choice == 1:
-                extensions = ['xls', 'xlsx']
+                source = '.\\source\\xls\\'
                 try:
-                    working_file = get_file(extensions)
+                    working_file = source + get_file(source)
                     city_name, city_geo = get_city()
-                    print(city_name)
-                    print(working_file)
                     add_city(city_name, working_file)
                     fill_coordinates(working_file)
 
@@ -108,9 +111,11 @@ if 'venv' in sys.executable:
 
                     city_name = translate_city(city_name)
                     save_graphml_to_file(city_name)
+
+                    filename = set_filename()
                     if suggest_to_save('Сохранить список адресов в базу данных? [Д/Н]:'):
-                        insert_data(address_list, geo_list)
-                    filename = input('Введите имя файла для сохранения геоданных: ')
+                        insert_data(filename, address_list[1:], geo_list[1:])
+
                     create_geojson(filename, address_list, geo_list)
                     print('Создание файла .geojson...')
                     convert_to_osm(filename)
@@ -121,19 +126,17 @@ if 'venv' in sys.executable:
                     routes_to_nearest_node, routes_between_points = build_optimal_routes(city_name, points, tsp_list)
                     print('Сохранение карты...')
                     create_map(city_geo, points, routes_to_nearest_node, routes_between_points)
-                    os.system("start test_map.html")
+                    os.system('start .\\source\\maps\\test_map.html')
+
 
                 except ImportError:
                     pass
-                except Exception as e:
-
-                    print(e)
 
             elif choice == 2:
-                extensions = ['geojson', 'osm']
+                source = '.\\source\\geojson_osm\\'
                 try:
-                    working_file = get_file(extensions).split('.')[0]
-                    if f'{working_file}.osm' not in os.listdir():
+                    working_file = get_file(source).split('.')[0]
+                    if f'{working_file}.osm' not in os.listdir('.\\source\\geojson_osm\\'):
                         convert_to_osm(working_file)
 
                     points = load_geom(working_file)
@@ -155,18 +158,15 @@ if 'venv' in sys.executable:
                     routes_to_nearest_node, routes_between_points = build_optimal_routes(city_name, points, tsp_list)
                     print('Сохранение карты...')
                     create_map(city_geo, points, routes_to_nearest_node, routes_between_points)
-                    os.system("start test_map.html")
+                    os.system('start .\\source\\maps\\test_map.html')
+
                 except ImportError:
                     pass
 
             elif choice == 3:
-                '''проверить если бд пустая
-                допилить папки (4)
-                допилить удаление/сохранение geojson
-                допилить удаление/сохранение в БД
-                загуглить подключение расширения postgis
-                причесать main и добавить функции
+                '''
                 добавить вывод points на экран
+                причесать main и добавить функции
                  '''
                 try:
                     base, engine = connect_to_db()
@@ -186,7 +186,7 @@ if 'venv' in sys.executable:
                     city_name = translate_city(city_name)
                     save_graphml_to_file(city_name)
 
-                    filename = input('Введите имя файла для сохранения геоданных: ')
+                    filename = set_filename()
                     create_geojson(filename, address_list, geo_list)
                     print('Создание файла .geojson...')
                     convert_to_osm(filename)
@@ -197,7 +197,7 @@ if 'venv' in sys.executable:
                     routes_to_nearest_node, routes_between_points = build_optimal_routes(city_name, points, tsp_list)
                     print('Сохранение карты...')
                     create_map(city_geo, points, routes_to_nearest_node, routes_between_points)
-                    os.system("start test_map.html")
+                    os.system('start .\\source\\maps\\test_map.html')
 
                 except ImportError:
                     pass
@@ -216,9 +216,9 @@ if 'venv' in sys.executable:
                 except ImportError:
                     pass
                 except AssertionError:
+                    filename = set_filename()
                     if suggest_to_save('Сохранить список адресов в базу данных? [Д/Н]:'):
-                        insert_data(address_list[1:], geo_list[1:])
-                    filename = input('Введите имя файла для сохранения геоданных: ')
+                        insert_data(filename, address_list[1:], geo_list[1:])
                     create_geojson(filename, address_list, geo_list)
                     print('Создание файла .geojson...')
                     convert_to_osm(filename)
@@ -229,11 +229,10 @@ if 'venv' in sys.executable:
                     routes_to_nearest_node, routes_between_points = build_optimal_routes(city_name, points, tsp_list)
                     print('Сохранение карты...')
                     create_map(city_geo, points, routes_to_nearest_node, routes_between_points)
-                    os.system("start test_map.html")
-
-                    # insert database ?
+                    os.system('start .\\source\\maps\\test_map.html')
 
             choice = main_menu()
+        close_dadata_socket()
 
     main()
 
