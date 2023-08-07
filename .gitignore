@@ -129,3 +129,4 @@ dmypy.json
 # auxiliary
 tdict.txt
 token_dadata
+db_pass
