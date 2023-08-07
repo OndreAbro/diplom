@@ -8,9 +8,8 @@ def solve_tsp(points):
     for i in range(len(points)):
         dist_list = []
         for j in range(len(points)):
-
-            start = measurement.Feature(points.geometry[i].x, points.geometry[i].y)
-            end = measurement.Feature(points.geometry[j].x, points.geometry[j].y)
+            start = [points.geometry[i].x, points.geometry[i].y]
+            end = [points.geometry[j].x, points.geometry[j].y]
             dist = round(measurement.distance(start, end) * 1000)
             dist_list.append(dist)
         distance_matrix.append(dist_list)
@@ -31,7 +30,7 @@ def solve_tsp(points):
     transit_callback_index = routing.RegisterTransitCallback(distance_callback)
     routing.SetArcCostEvaluatorOfAllVehicles(transit_callback_index)
     search_parameters = pywrapcp.DefaultRoutingSearchParameters()
-    search_parameters.first_solution_strategy = (routing_enums_pb2.FirstSolutionStrategy.PATH_CHEAPEST_ARC)
+    search_parameters.first_solution_strategy = routing_enums_pb2.FirstSolutionStrategy.PATH_CHEAPEST_ARC
     solution = routing.SolveWithParameters(search_parameters)
 
     index = routing.Start(0)
