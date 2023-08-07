@@ -5,19 +5,18 @@ import geoalchemy2
 from process_geo import select_option
 
 
+with open('.\\source\\db_pass', 'r') as db:
+    user, password, database = db.read().split(' ')
+
+
 def connect_to_db():
-    while True:
-        print('Введите данные для подключения к БД:')
-        database = input('Database: ')
-        user = input('User: ')
-        password = input('Password: ')
-        base = declarative_base()
-        engine = create_engine(f'postgresql://{user}:{password}@localhost:5432/{database}', echo=False)
-        try:
-            base.metadata.reflect(engine)
-            return Base, engine
-        except OperationalError:
-            print('Не удается подключиться, используя введенные данные!')
+    base = declarative_base()
+    engine = create_engine(f'postgresql://{user}:{password}@localhost:5432/{database}', echo=False)
+    try:
+        base.metadata.reflect(engine)
+        return base, engine
+    except OperationalError:
+        print('Не удается подключиться, используя введенные данные!')
 
 
 def get_table(base):
