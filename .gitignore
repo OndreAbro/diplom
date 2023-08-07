@@ -3,6 +3,7 @@
 .idea/
 .idea
 source/
+cache/
 
 # Vagrant
 .vagrant/
@@ -125,8 +126,3 @@ venv.bak/
 .mypy_cache/
 .dmypy.json
 dmypy.json
-
-# auxiliary
-tdict.txt
-token_dadata
-db_pass
