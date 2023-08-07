@@ -33,6 +33,7 @@ def get_table(base):
     if not table_list:
         print('В базе отсутствуют данные!')
         raise ImportError
+    print('\nВыберите таблицу:')
     table_name = table_list[select_option(table_list)]
     base.metadata.clear()
     return table_name
