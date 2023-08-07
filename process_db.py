@@ -1,5 +1,5 @@
 from sqlalchemy.orm import sessionmaker, declarative_base
-from sqlalchemy import Column, Integer, String, create_engine
+from sqlalchemy import Column, Integer, String, create_engine, sql
 from sqlalchemy.exc import OperationalError
 import geoalchemy2
 from process_geo import select_option
@@ -17,6 +17,14 @@ def connect_to_db():
         return base, engine
     except OperationalError:
         print('Не удается подключиться, используя введенные данные!')
+
+def check_postgis_extension(engine):
+    with engine.connect() as con:
+        result = con.execute(sql.text("SELECT * FROM pg_extension WHERE extname LIKE 'postgis%'"))
+        ext_list = result.all()
+        if not ext_list:
+            con.execute(sql.text("CREATE EXTENSION postgis_topology CASCADE"))
+            con.commit()
 
 
 def get_table(base):
@@ -46,12 +54,12 @@ def get_data(table, base, engine):
     return address_list, geo_list
 
 
-def insert_data(address_list, geo_list):
+def insert_data(tablename, address_list, geo_list):
     base, engine = connect_to_db()
     base.metadata.clear()
-
+    check_postgis_extension(engine)
     class PostgisGeom(base):
-        __tablename__ = input('Введите название таблицы: ')
+        __tablename__ = tablename
         id = Column(Integer, primary_key=True)
         description = Column(String)
         geometry = Column(geoalchemy2.Geometry(geometry_type='POINT', srid=4326))
