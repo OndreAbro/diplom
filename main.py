@@ -17,12 +17,14 @@ if 'venv' in sys.executable:
               2. Загрузить данные с файла geojson/osmxml.
               3. Загрузить данные из БД.
               4. Ввести данные вручную.
-              5. Выйти из программы''')
+              5. Просмотреть файл geojson/osmxml.
+              6. Просмотреть содержимое БД.
+              7. Выйти из программы''')
         try:
-            choice = int(input('Введите число от 1 до 5, обозначающее пункт меню: '))
+            choice = int(input('Введите число от 1 до 7, обозначающее пункт меню: '))
             return choice
         except ValueError:
-            print('Некорректный ввод, требуется ввести число от 1 до 5!')
+            print('Некорректный ввод, требуется ввести число от 1 до 7!')
 
 
     def get_file(source_dir):
@@ -30,7 +32,7 @@ if 'venv' in sys.executable:
         if not file_list:
             print('Не найдено соответствующих файлов!')
             raise ImportError
-        print('Выберите файл: ')
+        print('\nВыберите файл: ')
         return file_list[select_option(file_list)]
 
 
@@ -54,6 +56,15 @@ if 'venv' in sys.executable:
                 raise AssertionError
             else:
                 manual_input_repeat()
+
+
+    def repeat_menu(text):
+        answer = input(text).upper()
+        if answer != 'Д':
+            if answer == 'Н':
+                raise AssertionError
+            else:
+                repeat_menu(text)
 
 
     def suggest_to_save(text):
@@ -93,7 +104,7 @@ if 'venv' in sys.executable:
 
     def main():
         choice = main_menu()
-        while choice != 5:
+        while choice != 7:
 
             if choice == 1:
                 source = '.\\source\\xls\\'
@@ -125,12 +136,12 @@ if 'venv' in sys.executable:
                     print('Построение маршрутов...')
                     routes_to_nearest_node, routes_between_points = build_optimal_routes(city_name, points, tsp_list)
                     print('Сохранение карты...')
-                    create_map(city_geo, points, routes_to_nearest_node, routes_between_points)
+                    create_map(filename, city_geo, points, routes_to_nearest_node, routes_between_points)
                     os.system('start .\\source\\maps\\test_map.html')
 
 
                 except ImportError:
-                    pass
+                    print_line()
 
             elif choice == 2:
                 source = '.\\source\\geojson_osm\\'
@@ -157,17 +168,14 @@ if 'venv' in sys.executable:
                     print('Построение маршрутов...')
                     routes_to_nearest_node, routes_between_points = build_optimal_routes(city_name, points, tsp_list)
                     print('Сохранение карты...')
-                    create_map(city_geo, points, routes_to_nearest_node, routes_between_points)
+                    create_map(set_filename(), city_geo, points, routes_to_nearest_node, routes_between_points)
                     os.system('start .\\source\\maps\\test_map.html')
 
                 except ImportError:
-                    pass
+                    print_line()
 
             elif choice == 3:
-                '''
-                добавить вывод points на экран
-                причесать main и добавить функции
-                 '''
+
                 try:
                     base, engine = connect_to_db()
                     table = get_table(base)
@@ -196,11 +204,12 @@ if 'venv' in sys.executable:
                     print('Построение маршрутов...')
                     routes_to_nearest_node, routes_between_points = build_optimal_routes(city_name, points, tsp_list)
                     print('Сохранение карты...')
-                    create_map(city_geo, points, routes_to_nearest_node, routes_between_points)
+                    create_map(filename, city_geo, points, routes_to_nearest_node, routes_between_points)
                     os.system('start .\\source\\maps\\test_map.html')
 
                 except ImportError:
-                    pass
+                    print_line()
+
             elif choice == 4:
                 try:
                     city_name, city_geo = get_city()
@@ -214,7 +223,7 @@ if 'venv' in sys.executable:
                         geo_list.append(geo)
                         manual_input_repeat()
                 except ImportError:
-                    pass
+                    print_line()
                 except AssertionError:
                     filename = set_filename()
                     if suggest_to_save('Сохранить список адресов в базу данных? [Д/Н]:'):
@@ -228,8 +237,41 @@ if 'venv' in sys.executable:
                     print('Построение маршрутов...')
                     routes_to_nearest_node, routes_between_points = build_optimal_routes(city_name, points, tsp_list)
                     print('Сохранение карты...')
-                    create_map(city_geo, points, routes_to_nearest_node, routes_between_points)
+                    create_map(filename, city_geo, points, routes_to_nearest_node, routes_between_points)
                     os.system('start .\\source\\maps\\test_map.html')
+
+
+            elif choice == 5:
+                source = '.\\source\\geojson_osm\\'
+                try:
+                    while True:
+                        working_file = get_file(source).split('.')[0]
+                        if f'{working_file}.osm' not in os.listdir('.\\source\\geojson_osm\\'):
+                            convert_to_osm(working_file)
+                        points = load_geom(working_file)
+                        print(points)
+                        print_line()
+                        repeat_menu('Просмотреть другой файл? [Д/Н]:')
+                except (ImportError, AssertionError):
+                    print_line()
+
+            elif choice == 6:
+                try:
+                    while True:
+                        base, engine = connect_to_db()
+                        table = get_table(base)
+                        address_list, geo_list = get_data(table, base, engine)
+                        filename = 'temp'
+                        create_geojson(filename, address_list, geo_list)
+                        convert_to_osm(filename)
+                        points = load_geom(filename)
+                        print(points)
+                        os.remove('.\\source\\geojson_osm\\temp.geojson')
+                        os.remove(f'.\\source\\geojson_osm\\temp.osm')
+                        print_line()
+                        repeat_menu('Просмотреть другую таблицу? [Д/Н]:')
+                except (ImportError, AssertionError):
+                    print_line()
 
             choice = main_menu()
         close_dadata_socket()
