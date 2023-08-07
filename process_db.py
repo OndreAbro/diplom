@@ -18,6 +18,7 @@ def connect_to_db():
     except OperationalError:
         print('Не удается подключиться, используя введенные данные!')
 
+
 def check_postgis_extension(engine):
     with engine.connect() as con:
         result = con.execute(sql.text("SELECT * FROM pg_extension WHERE extname LIKE 'postgis%'"))
@@ -28,7 +29,7 @@ def check_postgis_extension(engine):
 
 
 def get_table(base):
-    table_list = list(base.metadata.tables.keys())
+    table_list = [key for key in base.metadata.tables.keys() if key not in ('spatial_ref_sys', 'topology', 'layer')]
     if not table_list:
         print('В базе отсутствуют данные!')
         raise ImportError
