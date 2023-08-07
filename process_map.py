@@ -1,7 +1,7 @@
 import folium as _f
 
 
-def create_map(city_geo, points, routes_to_nearest_node, routes_between_points):
+def create_map(filename, city_geo, points, routes_to_nearest_node, routes_between_points):
     m = _f.Map([city_geo[1], city_geo[0]])
     for i in range(len(points)):
         _f.Marker([points.geometry[i].y, points.geometry[i].x],
@@ -11,6 +11,4 @@ def create_map(city_geo, points, routes_to_nearest_node, routes_between_points):
     for route in routes_between_points:
         _f.PolyLine(route, color='red').add_to(m)
 
-    m.save('.\\source\\maps\\test_map.html')
-    # m.save(input('Введите имя файла для сохранения карты маршрутов: '))
-
+    m.save(f'.\\source\\maps\\{filename}.html')
