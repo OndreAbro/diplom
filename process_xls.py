@@ -36,7 +36,7 @@ def fill_coordinates(filename):
                 print('По адресу: ' + sheet[cell].value + ' данные не найдены!')
                 not_found_addr += 1
         wb.save(filename)
-        print(f'Общее число объектов на входе: {sheet.max_row}\nЧисло объектов на выходе: {sheet.max_row - not_found_addr}')
+        print(f'Общее число объектов: {sheet.max_row}\nЧисло объектов на выходе: {sheet.max_row - not_found_addr}')
 
 
 def return_from_file(filename):

@@ -8,7 +8,8 @@ from datetime import datetime
 
 
 def check_mtime(city):
-    return (datetime.now() - datetime.fromtimestamp(os.path.getmtime(f'.\\source\\graphml\\{city}_D.graphml'))).days < 30
+    mtime = (datetime.now() - datetime.fromtimestamp(os.path.getmtime(f'.\\source\\graphml\\{city}_D.graphml'))).days
+    return mtime < 30
 
 
 def save_graphml_to_file(city):
