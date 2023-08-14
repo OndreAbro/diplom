@@ -39,7 +39,7 @@ def get_table(base):
     return table_name
 
 
-def get_data(table, base, engine):
+def return_from_db(table, base, engine):
     class PostgisGeom(base):
         __tablename__ = table
         id = Column(Integer, primary_key=True)
@@ -51,7 +51,7 @@ def get_data(table, base, engine):
     address_list = [row[0] for row in session.query(PostgisGeom.description).all()]
     geo_query = session.query(geoalchemy2.functions.ST_AsGeoJSON(PostgisGeom.geometry)).all()
 
-    geo_list = [tuple(eval(str(row[0]))['coordinates']) for row in geo_query]
+    geo_list = [tuple(json.loads(str(row[0])).get('coordinates')) for row in geo_query]
 
     return address_list, geo_list
 
