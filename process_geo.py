@@ -35,16 +35,6 @@ def select_option(options_list):
             print('Некорректный ввод!')
 
 
-def get_city():
-    city_variants, geo_variants = [], []
-    while not city_variants:
-        city_variants, geo_variants = find_city(input('Введите название города: '))
-        if not city_variants:
-            not_found_menu()
-    num = select_option(city_variants) if len(city_variants) > 1 else 0
-    return city_variants[num], geo_variants[num]
-
-
 def translate_city(city_name):
     with open('.\\source\\tdict.txt', 'r', encoding='utf-8') as tdict:
         return json.loads(tdict.read()).get(city_name)
