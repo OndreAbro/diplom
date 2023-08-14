@@ -3,6 +3,7 @@ from sqlalchemy import Column, Integer, String, create_engine, sql
 from sqlalchemy.exc import OperationalError
 import geoalchemy2
 from process_geo import select_option
+import json
 
 
 with open('.\\source\\db_pass', 'r') as db:
