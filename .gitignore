@@ -2,7 +2,6 @@
 .vscode/
 .idea/
 .idea
-source/
 cache/
 
 # Vagrant
@@ -126,3 +125,14 @@ venv.bak/
 .mypy_cache/
 .dmypy.json
 dmypy.json
+
+# source/
+*.graphml
+*.osm
+*.geojson
+*.html
+*.xls
+*.xlsx
+dadata_token
+db_pass
+geojson2osm
