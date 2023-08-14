@@ -7,20 +7,23 @@ import os
 from datetime import datetime
 
 
+graph_path = '.\\source\\graphml\\'
+
+
 def check_mtime(city):
-    mtime = (datetime.now() - datetime.fromtimestamp(os.path.getmtime(f'.\\source\\graphml\\{city}_D.graphml'))).days
+    mtime = (datetime.now() - datetime.fromtimestamp(os.path.getmtime(f'{graph_path}{city}_D.graphml'))).days
     return mtime < 30
 
 
 def save_graphml_to_file(city):
-    if not os.path.exists(f'.\\source\\graphml\\{city}_D.graphml') or \
-            not os.path.exists(f'.\\source\\graphml\\{city}_W.graphml') or \
+    if not os.path.exists(f'{graph_path}{city}_D.graphml') or \
+            not os.path.exists(f'{graph_path}{city}_W.graphml') or \
             not check_mtime(city):
         print('Загрузка города...')
         d = _ox.graph_from_place(f'{city}, Russia', network_type='drive')
         w = _ox.graph_from_place(f'{city}, Russia', network_type='walk')
-        _ox.save_graphml(d, filepath=f'.\\source\\graphml\\{city}_D.graphml')
-        _ox.save_graphml(w, filepath=f'.\\source\\graphml\\{city}_W.graphml')
+        _ox.save_graphml(d, filepath=f'{graph_path}{city}_D.graphml')
+        _ox.save_graphml(w, filepath=f'{graph_path}{city}_W.graphml')
 
 
 def load_geom(filename):
@@ -30,8 +33,8 @@ def load_geom(filename):
 
 def build_optimal_routes(city, points, tsp_list):
     print('Построение плана города...')
-    w = _ox.load_graphml(f'.\\source\\graphml\\{city}_W.graphml')
-    d = _ox.load_graphml(f'.\\source\\graphml\\{city}_D.graphml')
+    w = _ox.load_graphml(f'{graph_path}{city}_W.graphml')
+    d = _ox.load_graphml(f'{graph_path}{city}_D.graphml')
     routes_to_nearest_node, routes_between_points = [], []
 
     for i in range(len(points)):
