@@ -32,7 +32,6 @@ def load_geom(filename):
 
 
 def build_optimal_routes(city, points, tsp_list):
-    print('Построение плана города...')
     w = _ox.load_graphml(f'{graph_path}{city}_W.graphml')
     d = _ox.load_graphml(f'{graph_path}{city}_D.graphml')
     routes_to_nearest_node, routes_between_points = [], []
