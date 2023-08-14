@@ -56,7 +56,7 @@ def return_from_db(table, base, engine):
     return address_list, geo_list
 
 
-def insert_data(tablename, address_list, geo_list):
+def insert_to_db(tablename, address_list, geo_list):
     base, engine = connect_to_db()
     base.metadata.clear()
     check_postgis_extension(engine)
@@ -73,3 +73,9 @@ def insert_data(tablename, address_list, geo_list):
         insert_geom = geoalchemy2.functions.ST_GeomFromText(f'POINT({geo_list[i][0]} {geo_list[i][1]})')
         session.add(PostgisGeom(description=address_list[i], geometry=insert_geom))
     session.commit()
+
+
+def handle_db():
+    base, engine = connect_to_db()
+    table = get_table(base)
+    return return_from_db(table, base, engine)
