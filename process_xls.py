@@ -52,3 +52,9 @@ def return_from_file(filename):
         if x and y:
             geo_list.append((x, y))
     return address_list, geo_list
+
+
+def handle_file(city_name, working_file):
+    add_city(city_name, working_file)
+    fill_coordinates(working_file)
+    return return_from_file(working_file)
