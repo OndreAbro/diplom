@@ -1,7 +1,8 @@
 from openpyxl import load_workbook
-from process_geo import find_address, select_option
+from handle_geo import find_address, select_option
 
 
+# Добавляем город к адресу
 def add_city(city, filename):
     wb = load_workbook(filename)
     sheet = wb.active
@@ -14,6 +15,7 @@ def add_city(city, filename):
     wb.save(filename)
 
 
+# Поиск адреса и добавление координат на новый лист
 def fill_coordinates(filename):
     wb = load_workbook(filename)
     sheet = wb.active
@@ -39,10 +41,11 @@ def fill_coordinates(filename):
         print(f'Общее число объектов: {sheet.max_row}\nЧисло объектов на выходе: {sheet.max_row - not_found_addr}')
 
 
+# Создание списков с адресами и координатами
 def return_from_file(filename):
     address_list, geo_list = [], []
     wb = load_workbook(filename)
-    sheet = wb.get_sheet_by_name('coordinates')
+    sheet = wb['coordinates']
     for cell in range(1, sheet.max_row + 1):
         x = sheet[f'C{cell}'].value
         y = sheet[f'B{cell}'].value

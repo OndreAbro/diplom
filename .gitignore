@@ -136,3 +136,4 @@ dmypy.json
 dadata_token
 db_pass
 geojson2osm
+*.png

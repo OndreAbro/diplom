@@ -2,7 +2,7 @@ from sqlalchemy.orm import sessionmaker, declarative_base
 from sqlalchemy import Column, Integer, String, create_engine, sql
 from sqlalchemy.exc import OperationalError
 import geoalchemy2
-from process_geo import select_option
+from handle_geo import select_option
 import json
 
 
@@ -10,6 +10,7 @@ with open('.\\source\\db_pass', 'r') as db:
     user, password, database = db.read().split(' ')
 
 
+# Соединение с базой
 def connect_to_db():
     base = declarative_base()
     engine = create_engine(f'postgresql://{user}:{password}@localhost:5432/{database}', echo=False)
@@ -20,6 +21,7 @@ def connect_to_db():
         print('Не удается подключиться, используя введенные данные!')
 
 
+# Проверяем, что PostGIS установлен (если нет, устанавливаем)
 def check_postgis_extension(engine):
     with engine.connect() as con:
         result = con.execute(sql.text("SELECT * FROM pg_extension WHERE extname LIKE 'postgis%'"))
@@ -29,6 +31,7 @@ def check_postgis_extension(engine):
             con.commit()
 
 
+# Выбор таблицы
 def get_table(base):
     table_list = [key for key in base.metadata.tables.keys() if key not in ('spatial_ref_sys', 'topology', 'layer')]
     if not table_list:
@@ -40,7 +43,9 @@ def get_table(base):
     return table_name
 
 
+# Получение адресов и координат из таблицы
 def return_from_db(table, base, engine):
+
     class PostgisGeom(base):
         __tablename__ = table
         id = Column(Integer, primary_key=True)
@@ -57,6 +62,7 @@ def return_from_db(table, base, engine):
     return address_list, geo_list
 
 
+# Импорт адресов и координат в базу
 def insert_to_db(tablename, address_list, geo_list):
     base, engine = connect_to_db()
     base.metadata.clear()
